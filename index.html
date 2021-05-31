@@ -24,7 +24,14 @@
       width: 240px;
     }
   </style>
-</head>
+  <script src="https://cdn.trackjs.com/agent/v3/latest/t.js"></script>
+  <script>
+	window.TrackJS && TrackJS.install({ 
+	  token: "9c64d8c6c9be4b8fb36469709e89ca3f"
+	  // for more configuration options, see https://docs.trackjs.com
+	});
+  </script>
+						  
 <body>
   <fieldset>
     <legend>Error Calculator</legend>
@@ -52,10 +59,16 @@
     <button>Start Timer</button>
     <button>End Timer</button>
     <button>Console Trace</button>
-    <button>Trigger a Global Error</button>
+    <button id="globalTrigger">Trigger a Global Error</button>
   </section>
 
   <script>
+	class OperationError extends Error{
+		constructor (message) {
+			super(message);
+			this.name = "OperationError";
+		}
+	}
     let calculateBtn = document.querySelector('#calculate');
     calculateBtn.addEventListener('click', () => {
       let output = document.querySelector('output');
@@ -63,10 +76,148 @@
       let secondNum = document.querySelector('#second-num').value;
       let operator = document.querySelector('#operator').value;
       output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+	  alertAnswer();
     });
 
     let errorBtns = Array.from(document.querySelectorAll('#error-btns > button'));
     // TODO - Make buttons functional
+	errorBtns[0].onclick = () => {
+		console.log("Hello there");
+	}
+
+	errorBtns[1].onclick = () => {
+		console.error("This is an error");
+	};
+
+	errorBtns[2].onclick = () => {
+		console.dir(document.head);
+	};
+
+	errorBtns[3].onclick = () => {
+		console.dirxml(document);
+	};
+
+	errorBtns[4].onclick = () => {
+		console.group("Group start");
+		console.info("Info in my group");
+	};
+
+	errorBtns[5].onclick = () => {
+		console.groupEnd("Group end");
+	};
+
+	errorBtns[6].onclick = () => {
+		let dataTable = [{
+			title: "January",
+			days: 31
+		},
+		{
+			title: "February",
+			days: 28
+		},
+		{
+			title: "March",
+			days: 31
+		},
+		{
+			title: "April",
+			days: 30
+		},
+		{
+			title: "May",
+			days: 31
+		},
+		{
+			title: "June",
+			days: 30
+		},
+		{
+			title: "July",
+			days: 31
+		},
+		{
+			title: "August",
+			days: 31
+		},
+		{
+			title: "September",
+			days: 30
+		},
+		{
+			title: "October",
+			days: 31
+		},
+		{
+			title: "November",
+			days: 30
+		},
+		{
+			title: "December",
+			days: 31
+		}]
+		console.table(dataTable);
+	};
+
+	errorBtns[7].onclick = () => {
+		console.time();
+	};
+
+	errorBtns[8].onclick = () => {
+		console.timeEnd();
+	}
+
+	errorBtns[9].onclick = () => {
+		let message = "";
+		let sayHi = () => {
+			message = `${message} Hi`;
+			sayTim();
+		}
+		let sayTim = () => {
+			message = `${message} Tim,`;
+			sayGoodbye();
+		}
+		let sayGoodbye = () => {
+			message = `${message} goodbye`
+			console.trace();
+		};
+		sayHi();
+	};
+
+	errorBtns[10].onclick = () => {
+		alertAnswer();
+	};
+
+	function alertAnswer () {
+		let answer = "No answer"
+		try {
+			answer = output.innerHTML;
+		} catch (error) {
+			answer = error.message;
+			throw(error);
+		} finally {
+			alert(answer);
+			rightOperation();
+		}
+	}
+
+	function rightOperation () {
+		let answer = "Not a number";
+		try{
+			answer = document.querySelector("output").innerText;
+			if (isNaN(answer) || answer == ""){
+				let error = new OperationError("Wrong operation");
+				throw(error);
+			}
+		} catch (error) {
+			console.log(error.message)
+		}
+	}
+
+	window.onerror = (error) => {
+		TrackJS.track(error.message);
+	}
+	
+
   </script>
 </body>
 </html>
